@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elevador Inteligente</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="predio">
+        <div class="andar">5º Andar</div>
+        <div class="andar">4º Andar</div>
+        <div class="andar">3º Andar</div>
+        <div class="andar">2º Andar</div>
+        <div class="andar">1º Andar</div>
+
+        <div class="elevador" id="elevador">
+          <div class="porta porta-esquerda"></div>
+          <div class="porta porta-direita"></div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h2>Controle</h2>
+
+        <button onclick="irParaAndar(1)">1º Andar</button>
+        <button onclick="irParaAndar(2)">2º Andar</button>
+        <button onclick="irParaAndar(3)">3º Andar</button>
+        <button onclick="irParaAndar(4)">4º Andar</button>
+        <button onclick="irParaAndar(5)">5º Andar</button>
+
+        <div class="display">
+          Andar Atual:
+          <span id="andarAtual">1</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

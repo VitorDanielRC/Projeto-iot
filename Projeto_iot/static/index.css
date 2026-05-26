@@ -1,0 +1,111 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #111827, #1e3a8a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.container {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.predio {
+    width: 260px;
+    height: 520px;
+    background: #d1d5db;
+    border: 6px solid #111827;
+    position: relative;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.andar {
+    height: 20%;
+    border-top: 3px solid #111827;
+    position: relative;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.elevador {
+    position: absolute;
+    width: 90px;
+    height: 80px;
+    background: #2563eb;
+    border: 4px solid #0f172a;
+    left: 145px;
+    bottom: 10px;
+    transition: bottom 2s ease-in-out;
+    overflow: hidden;
+}
+
+.porta {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: #93c5fd;
+    transition: 0.6s;
+}
+
+.porta-esquerda {
+    left: 0;
+    border-right: 2px solid #1e3a8a;
+}
+
+.porta-direita {
+    right: 0;
+    border-left: 2px solid #1e3a8a;
+}
+
+.abrir .porta-esquerda {
+    transform: translateX(-100%);
+}
+
+.abrir .porta-direita {
+    transform: translateX(100%);
+}
+
+.painel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+button {
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #1d4ed8;
+    transform: scale(1.05);
+}
+
+.display {
+    margin-top: 10px;
+    font-size: 22px;
+    text-align: center;
+}
