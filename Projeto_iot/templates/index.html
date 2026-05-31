@@ -407,7 +407,6 @@
         </div>
       </section>
     </main>
-
     <script>
       const formEntrega = document.getElementById('formEntrega')
       const mensagem = document.getElementById('mensagem')
@@ -417,7 +416,6 @@
         event.preventDefault()
       
         const formData = new FormData(formEntrega)
-        const andar = document.getElementById('andar_destino').value
       
         mostrarMensagem('Enviando entrega...', false)
       
@@ -442,6 +440,8 @@
             adicionarHistorico(dados.numero_pedido, dados.nome_morador, dados.andar_destino)
       
             formEntrega.reset()
+          } else if (dados.status === 'bloqueado') {
+            mostrarMensagem(`Elevador bloqueado! Já existe uma comida no elevador. Pedido atual: ${dados.pedido_atual}.`, true)
           } else {
             mostrarMensagem(dados.mensagem || 'Erro ao criar entrega.', true)
           }
@@ -451,23 +451,50 @@
         }
       })
       
-      async function retornarTerreo() {
-        mostrarMensagem('Retornando elevador ao térreo...', false)
+      async function voltarParaBaixo() {
+        mostrarMensagem('Enviando comando para o elevador descer...', false)
       
         try {
-          const resposta = await fetch('/api/elevador/retornar/', {
+          const resposta = await fetch('/api/elevador/voltar-baixo/', {
             method: 'POST'
           })
       
           const dados = await resposta.json()
       
-          cabine.className = 'cabine andar-1'
-          document.getElementById('statusAndar').innerText = '1º andar'
-          document.getElementById('statusEntrega').innerText = 'Retornando ao térreo'
+          if (dados.status === 'ok') {
+            cabine.className = 'cabine andar-1'
       
-          mostrarMensagem(dados.mensagem, false)
+            document.getElementById('statusAndar').innerText = '1º andar'
+            document.getElementById('statusEntrega').innerText = 'Retornando ao térreo'
+      
+            mostrarMensagem(dados.mensagem, false)
+          } else {
+            mostrarMensagem(dados.mensagem || 'Erro ao descer o elevador.', true)
+          }
         } catch (error) {
-          mostrarMensagem('Erro ao retornar o elevador.', true)
+          mostrarMensagem('Erro de conexão com o servidor.', true)
+          console.error(error)
+        }
+      }
+      
+      async function finalizarEntrega() {
+        mostrarMensagem('Finalizando entrega e liberando o elevador...', false)
+      
+        try {
+          const resposta = await fetch('/api/elevador/finalizar/', {
+            method: 'POST'
+          })
+      
+          const dados = await resposta.json()
+      
+          if (dados.status === 'ok') {
+            document.getElementById('statusEntrega').innerText = 'Finalizado'
+            mostrarMensagem(dados.mensagem, false)
+          } else {
+            mostrarMensagem(dados.mensagem || 'Erro ao finalizar entrega.', true)
+          }
+        } catch (error) {
+          mostrarMensagem('Erro ao finalizar a entrega.', true)
           console.error(error)
         }
       }
@@ -489,9 +516,9 @@
         const item = document.createElement('div')
         item.className = 'historico-item'
         item.innerHTML = `
-                    <strong>${pedido} - ${morador}</strong>
-                    <small>${andar}º andar | Aguardando envio</small>
-                  `
+            <strong>${pedido} - ${morador}</strong>
+            <small>${andar}º andar | Aguardando envio</small>
+          `
       
         historico.prepend(item)
       }
