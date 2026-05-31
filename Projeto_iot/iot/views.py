@@ -193,14 +193,35 @@ def finalizar_entrega(request):
     
 @csrf_exempt
 def voltar_para_baixo(request):
+    if request.method != "POST":
+        return JsonResponse({"erro": "Método não permitido"}, status=405)
+
     entrega = Entrega.objects.exclude(status="finalizado").order_by("-criado_em").first()
 
     if entrega:
+        entrega.andar_destino = 1
         entrega.status = "retornando"
+        entrega.executado = False
         entrega.save()
+
+        return JsonResponse({
+            "status": "ok",
+            "mensagem": "Comando enviado: elevador descendo para o 1º andar.",
+            "andar_destino": 1,
+            "entrega_id": entrega.id
+        })
+
+    entrega = Entrega.objects.create(
+        nome_morador="Sistema",
+        numero_pedido="RETORNO",
+        andar_destino=1,
+        status="retornando",
+        executado=False
+    )
 
     return JsonResponse({
         "status": "ok",
-        "mensagem": "Elevador voltando para baixo.",
-        "andar_destino": 1
+        "mensagem": "Comando enviado: elevador descendo para o 1º andar.",
+        "andar_destino": 1,
+        "entrega_id": entrega.id
     })
