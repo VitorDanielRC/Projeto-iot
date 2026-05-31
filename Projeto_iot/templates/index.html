@@ -274,7 +274,7 @@
 
           <h1>Elevador de Entrega de Comida</h1>
 
-          <p class="descricao">Sistema para entregadores enviarem lanches até o andar do morador. O Django registra o pedido e o ESP32/Arduino consulta a API para mover o elevador.</p>
+          <p class="descricao">Entrega inteligente de pedidos entre andares.</p>
 
           <div class="card">
             <h2>Nova entrega</h2>
@@ -516,9 +516,9 @@
         const item = document.createElement('div')
         item.className = 'historico-item'
         item.innerHTML = `
-            <strong>${pedido} - ${morador}</strong>
-            <small>${andar}º andar | Aguardando envio</small>
-          `
+                  <strong>${pedido} - ${morador}</strong>
+                  <small>${andar}º andar | Aguardando envio</small>
+                `
       
         historico.prepend(item)
       }
