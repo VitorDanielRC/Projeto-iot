@@ -1,43 +1,43 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elevador Inteligente</title>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Elevador IoT</title>
+  <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+<body>
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="predio">
-        <div class="andar">5º Andar</div>
-        <div class="andar">4º Andar</div>
-        <div class="andar">3º Andar</div>
-        <div class="andar">2º Andar</div>
-        <div class="andar">1º Andar</div>
+  <main class="container">
+    <section class="painel">
+      <div class="info">
+        <span class="tag">Projeto IoT</span>
+        <h1>Elevador Inteligente</h1>
+        <p>Controle o elevador de 3 andares pela internet usando Django + Arduino/ESP.</p>
 
-        <div class="elevador" id="elevador">
-          <div class="porta porta-esquerda"></div>
-          <div class="porta porta-direita"></div>
+        <div class="status">
+          <strong>Status:</strong>
+          <span id="status">Aguardando comando...</span>
+        </div>
+
+        <div class="botoes">
+          <button onclick="chamarElevador(1)">1º Andar</button>
+          <button onclick="chamarElevador(2)">2º Andar</button>
+          <button onclick="chamarElevador(3)">3º Andar</button>
         </div>
       </div>
 
-      <div class="painel">
-        <h2>Controle</h2>
-
-        <button onclick="irParaAndar(1)">1º Andar</button>
-        <button onclick="irParaAndar(2)">2º Andar</button>
-        <button onclick="irParaAndar(3)">3º Andar</button>
-        <button onclick="irParaAndar(4)">4º Andar</button>
-        <button onclick="irParaAndar(5)">5º Andar</button>
-
-        <div class="display">
-          Andar Atual:
-          <span id="andarAtual">1</span>
+      <div class="elevador-box">
+        <div class="predio">
+          <div class="andar">3</div>
+          <div class="andar">2</div>
+          <div class="andar">1</div>
+          <div id="cabine" class="cabine andar-1">▲</div>
         </div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <script src="script.js"></script>
-  </body>
+  <script src="{% static 'script.js' %}"></script>
+</body>
 </html>
