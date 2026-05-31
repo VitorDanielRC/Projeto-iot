@@ -129,9 +129,17 @@ button:hover {
   transition: bottom 1s ease-in-out;
 }
 
-.andar-1 { bottom: 25px; }
-.andar-2 { bottom: 178px; }
-.andar-3 { bottom: 330px; }
+.andar-1 {
+  bottom: 25px;
+}
+
+.andar-2 {
+  bottom: 178px;
+}
+
+.andar-3 {
+  bottom: 330px;
+}
 
 @media (max-width: 800px) {
   .painel {
@@ -141,4 +149,10 @@ button:hover {
   h1 {
     font-size: 36px;
   }
+}
+.btn-finalizar {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #052e16;
+  width: 100%;
+  margin-top: 10px;
 }
