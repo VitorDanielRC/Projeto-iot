@@ -1,111 +1,144 @@
 * {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #111827, #1e3a8a);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #0369a1);
+  color: white;
 }
 
 .container {
-    display: flex;
-    gap: 40px;
-    align-items: center;
-}
-
-.predio {
-    width: 260px;
-    height: 520px;
-    background: #d1d5db;
-    border: 6px solid #111827;
-    position: relative;
-    display: flex;
-    flex-direction: column-reverse;
-}
-
-.andar {
-    height: 20%;
-    border-top: 3px solid #111827;
-    position: relative;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    padding-left: 15px;
-    font-weight: bold;
-}
-
-.elevador {
-    position: absolute;
-    width: 90px;
-    height: 80px;
-    background: #2563eb;
-    border: 4px solid #0f172a;
-    left: 145px;
-    bottom: 10px;
-    transition: bottom 2s ease-in-out;
-    overflow: hidden;
-}
-
-.porta {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    background: #93c5fd;
-    transition: 0.6s;
-}
-
-.porta-esquerda {
-    left: 0;
-    border-right: 2px solid #1e3a8a;
-}
-
-.porta-direita {
-    right: 0;
-    border-left: 2px solid #1e3a8a;
-}
-
-.abrir .porta-esquerda {
-    transform: translateX(-100%);
-}
-
-.abrir .porta-direita {
-    transform: translateX(100%);
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
 }
 
 .painel {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 25px;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 28px;
+  padding: 40px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+}
+
+.tag {
+  display: inline-block;
+  background: #38bdf8;
+  color: #082f49;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+p {
+  color: #cbd5e1;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.status {
+  margin: 28px 0;
+  padding: 18px;
+  background: rgba(15,23,42,0.7);
+  border-radius: 16px;
+}
+
+.botoes {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 button {
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: #2563eb;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #082f49;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 button:hover {
-    background: #1d4ed8;
-    transform: scale(1.05);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(56,189,248,0.35);
 }
 
-.display {
-    margin-top: 10px;
-    font-size: 22px;
-    text-align: center;
+.elevador-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.predio {
+  position: relative;
+  width: 260px;
+  height: 460px;
+  background: #020617;
+  border: 4px solid #38bdf8;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.andar {
+  height: 33.33%;
+  border-bottom: 2px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 25px;
+  font-size: 38px;
+  font-weight: bold;
+  color: #475569;
+}
+
+.cabine {
+  position: absolute;
+  left: 35px;
+  width: 115px;
+  height: 105px;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e293b;
+  font-size: 35px;
+  font-weight: bold;
+  transition: bottom 1s ease-in-out;
+}
+
+.andar-1 { bottom: 25px; }
+.andar-2 { bottom: 178px; }
+.andar-3 { bottom: 330px; }
+
+@media (max-width: 800px) {
+  .painel {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 36px;
+  }
 }
