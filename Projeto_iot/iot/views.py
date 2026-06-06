@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
+from .forms import CadastroForm
 from .models import Entrega
 
 
@@ -27,12 +28,31 @@ def login_view(request):
     return render(request, "login.html")
 
 
+def cadastro_view(request):
+    if request.user.is_authenticated:
+        return redirect("painel")
+
+    if request.method == "POST":
+        form = CadastroForm(request.POST)
+
+        if form.is_valid():
+            usuario = form.save()
+            login(request, usuario)
+            return redirect("painel")
+        else:
+            messages.error(request, "Verifique os dados do cadastro.")
+    else:
+        form = CadastroForm()
+
+    return render(request, "cadastro.html", {"form": form})
+
+
 @login_required
 def painel(request):
     entrega_atual = Entrega.objects.order_by("-criado_em").first()
     historico = Entrega.objects.order_by("-criado_em")[:6]
 
-    return render(request, "iot/painel.html", {
+    return render(request, "painel.html", {
         "entrega_atual": entrega_atual,
         "historico": historico,
     })
