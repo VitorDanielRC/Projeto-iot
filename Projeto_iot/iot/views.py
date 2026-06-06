@@ -1,86 +1,93 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+
 from .models import Entrega
 
 
-def home(request):
-    ultima_entrega = Entrega.objects.order_by("-criado_em").first()
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("painel")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        usuario = authenticate(request, username=username, password=password)
+
+        if usuario is not None:
+            login(request, usuario)
+            return redirect("painel")
+        else:
+            messages.error(request, "Usuário ou senha inválidos.")
+
+    return render(request, "login.html")
+
+
+@login_required
+def painel(request):
+    entrega_atual = Entrega.objects.order_by("-criado_em").first()
     historico = Entrega.objects.order_by("-criado_em")[:6]
 
-    return render(request, "index.html", {
-        "ultima_entrega": ultima_entrega,
-        "historico": historico
+    return render(request, "iot/painel.html", {
+        "entrega_atual": entrega_atual,
+        "historico": historico,
     })
 
 
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+
 @csrf_exempt
+@login_required
 def criar_entrega(request):
     if request.method != "POST":
         return JsonResponse({"erro": "Método não permitido"}, status=405)
-
-    entrega_em_andamento = Entrega.objects.filter(
-        status__in=[
-            "aguardando",
-            "subindo",
-            "aguardando_retirada",
-            "retornando"
-        ]
-    ).first()
-
-    if entrega_em_andamento:
-        return JsonResponse({
-            "status": "bloqueado",
-            "mensagem": "O elevador já possui uma comida em andamento. Finalize ou retire a entrega atual antes de enviar outra.",
-            "pedido_atual": entrega_em_andamento.numero_pedido,
-            "morador_atual": entrega_em_andamento.nome_morador,
-            "andar_atual": entrega_em_andamento.andar_destino,
-            "status_atual": entrega_em_andamento.status
-        }, status=409)
 
     nome_morador = request.POST.get("nome_morador")
     numero_pedido = request.POST.get("numero_pedido")
     andar_destino = request.POST.get("andar_destino")
 
     if not nome_morador or not numero_pedido or not andar_destino:
-        return JsonResponse({
-            "status": "erro",
-            "mensagem": "Preencha todos os campos."
-        }, status=400)
+        return JsonResponse({"erro": "Preencha todos os campos."}, status=400)
 
-    try:
-        andar_destino = int(andar_destino)
-    except ValueError:
-        return JsonResponse({
-            "status": "erro",
-            "mensagem": "Andar inválido."
-        }, status=400)
+    entrega_em_andamento = Entrega.objects.filter(
+        status__in=["aguardando", "subindo", "aguardando_retirada", "retornando"]
+    ).exists()
 
-    if andar_destino not in [1, 2, 3]:
+    if entrega_em_andamento:
         return JsonResponse({
-            "status": "erro",
-            "mensagem": "O andar precisa ser 1, 2 ou 3."
-        }, status=400)
+            "erro": "Já existe uma entrega em andamento."
+        }, status=409)
 
     entrega = Entrega.objects.create(
         nome_morador=nome_morador,
         numero_pedido=numero_pedido,
         andar_destino=andar_destino,
-        status="aguardando"
+        status="aguardando",
+        executado=False
     )
 
     return JsonResponse({
-        "status": "ok",
-        "mensagem": "Entrega registrada com sucesso.",
+        "mensagem": "Entrega criada com sucesso.",
         "id": entrega.id,
         "nome_morador": entrega.nome_morador,
         "numero_pedido": entrega.numero_pedido,
         "andar_destino": entrega.andar_destino,
-        "status_entrega": entrega.status
+        "status": entrega.status,
     })
 
-def comando_arduino(request):
-    entrega = Entrega.objects.filter(executado=False).order_by("criado_em").first()
+
+def comando_elevador(request):
+    entrega = Entrega.objects.filter(
+        executado=False,
+        status="aguardando"
+    ).order_by("criado_em").first()
 
     if entrega:
         entrega.executado = True
@@ -93,57 +100,22 @@ def comando_arduino(request):
             "tipo": "ENTREGA",
             "andar_destino": entrega.andar_destino,
             "numero_pedido": entrega.numero_pedido,
-            "nome_morador": entrega.nome_morador
+            "nome_morador": entrega.nome_morador,
         })
 
     return JsonResponse({
         "tem_comando": False,
-        "mensagem": "Nenhuma entrega pendente."
+        "mensagem": "Nenhum comando pendente."
     })
 
 
-@csrf_exempt
-def atualizar_status(request, entrega_id, status):
-    status_validos = [
-        "aguardando",
-        "subindo",
-        "aguardando_retirada",
-        "retornando",
-        "finalizado"
-    ]
-
-    if status not in status_validos:
-        return JsonResponse({
-            "status": "erro",
-            "mensagem": "Status inválido."
-        }, status=400)
-
-    try:
-        entrega = Entrega.objects.get(id=entrega_id)
-    except Entrega.DoesNotExist:
-        return JsonResponse({
-            "status": "erro",
-            "mensagem": "Entrega não encontrada."
-        }, status=404)
-
-    entrega.status = status
-    entrega.save()
-
-    return JsonResponse({
-        "status": "ok",
-        "mensagem": "Status atualizado com sucesso.",
-        "entrega_id": entrega.id,
-        "novo_status": entrega.status
-    })
-
-
-def status_atual(request):
+def status_elevador(request):
     entrega = Entrega.objects.order_by("-criado_em").first()
 
     if not entrega:
         return JsonResponse({
             "tem_entrega": False,
-            "mensagem": "Nenhuma entrega registrada."
+            "mensagem": "Nenhuma entrega encontrada."
         })
 
     return JsonResponse({
@@ -152,76 +124,80 @@ def status_atual(request):
         "nome_morador": entrega.nome_morador,
         "numero_pedido": entrega.numero_pedido,
         "andar_destino": entrega.andar_destino,
-        "status_entrega": entrega.status,
+        "status": entrega.status,
         "executado": entrega.executado,
-        "criado_em": entrega.criado_em.strftime("%d/%m/%Y %H:%M:%S")
     })
 
 
 @csrf_exempt
-def retornar_terreo(request):
-    entrega = Entrega.objects.order_by("-criado_em").first()
-
-    if entrega:
-        entrega.status = "retornando"
-        entrega.save()
-
-    return JsonResponse({
-        "status": "ok",
-        "mensagem": "Elevador retornando para o térreo.",
-        "andar_destino": 1
-    })
-
-@csrf_exempt
-def finalizar_entrega(request):
-    entrega = Entrega.objects.exclude(status="finalizado").order_by("-criado_em").first()
+def voltar_para_baixo(request):
+    entrega = Entrega.objects.filter(
+        status__in=["subindo", "aguardando_retirada"]
+    ).order_by("-criado_em").first()
 
     if not entrega:
         return JsonResponse({
-            "status": "erro",
-            "mensagem": "Não existe entrega em andamento."
+            "erro": "Nenhuma entrega para retornar."
+        }, status=404)
+
+    entrega.status = "retornando"
+    entrega.save()
+
+    return JsonResponse({
+        "mensagem": "Elevador retornando para o térreo.",
+        "id": entrega.id,
+        "status": entrega.status,
+    })
+
+
+@csrf_exempt
+def finalizar_entrega(request):
+    entrega = Entrega.objects.filter(
+        status__in=["aguardando", "subindo", "aguardando_retirada", "retornando"]
+    ).order_by("-criado_em").first()
+
+    if not entrega:
+        return JsonResponse({
+            "erro": "Nenhuma entrega em andamento."
         }, status=404)
 
     entrega.status = "finalizado"
     entrega.save()
 
     return JsonResponse({
-        "status": "ok",
-        "mensagem": "Entrega finalizada. O elevador está liberado para uma nova comida.",
-        "entrega_id": entrega.id
+        "mensagem": "Entrega finalizada com sucesso.",
+        "id": entrega.id,
+        "status": entrega.status,
     })
-    
+
+
 @csrf_exempt
-def voltar_para_baixo(request):
-    if request.method != "POST":
-        return JsonResponse({"erro": "Método não permitido"}, status=405)
+def atualizar_status(request, entrega_id, novo_status):
+    status_validos = [
+        "aguardando",
+        "subindo",
+        "aguardando_retirada",
+        "retornando",
+        "finalizado"
+    ]
 
-    entrega = Entrega.objects.exclude(status="finalizado").order_by("-criado_em").first()
-
-    if entrega:
-        entrega.andar_destino = 1
-        entrega.status = "retornando"
-        entrega.executado = False
-        entrega.save()
-
+    if novo_status not in status_validos:
         return JsonResponse({
-            "status": "ok",
-            "mensagem": "Comando enviado: elevador descendo para o 1º andar.",
-            "andar_destino": 1,
-            "entrega_id": entrega.id
-        })
+            "erro": "Status inválido."
+        }, status=400)
 
-    entrega = Entrega.objects.create(
-        nome_morador="Sistema",
-        numero_pedido="RETORNO",
-        andar_destino=1,
-        status="retornando",
-        executado=False
-    )
+    try:
+        entrega = Entrega.objects.get(id=entrega_id)
+    except Entrega.DoesNotExist:
+        return JsonResponse({
+            "erro": "Entrega não encontrada."
+        }, status=404)
+
+    entrega.status = novo_status
+    entrega.save()
 
     return JsonResponse({
-        "status": "ok",
-        "mensagem": "Comando enviado: elevador descendo para o 1º andar.",
-        "andar_destino": 1,
-        "entrega_id": entrega.id
+        "mensagem": "Status atualizado com sucesso.",
+        "id": entrega.id,
+        "status": entrega.status,
     })
