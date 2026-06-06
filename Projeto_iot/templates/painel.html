@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel - Projeto IoT</title>
+</head>
+<body>
+
+    <h1>Painel do Elevador</h1>
+
+    <p>Você está logado como: <strong>{{ request.user.username }}</strong></p>
+
+    <a href="{% url 'logout' %}">Sair</a>
+
+    <hr>
+
+    <h2>Entrega atual</h2>
+
+    {% if entrega_atual %}
+        <p><strong>Pedido:</strong> {{ entrega_atual.numero_pedido }}</p>
+        <p><strong>Morador:</strong> {{ entrega_atual.nome_morador }}</p>
+        <p><strong>Andar:</strong> {{ entrega_atual.andar_destino }}</p>
+        <p><strong>Status:</strong> {{ entrega_atual.status }}</p>
+    {% else %}
+        <p>Nenhuma entrega cadastrada.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Histórico de entregas</h2>
+
+    {% for entrega in historico %}
+        <div>
+            <p><strong>Pedido:</strong> {{ entrega.numero_pedido }}</p>
+            <p><strong>Morador:</strong> {{ entrega.nome_morador }}</p>
+            <p><strong>Andar:</strong> {{ entrega.andar_destino }}</p>
+            <p><strong>Status:</strong> {{ entrega.status }}</p>
+        </div>
+        <hr>
+    {% empty %}
+        <p>Nenhuma entrega encontrada.</p>
+    {% endfor %}
+
+</body>
+</html>
