@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -107,7 +107,37 @@ def login_view(request):
 
         messages.error(request, "Usuario ou senha invalidos.")
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"active_tab": "login"})
+
+
+def cadastro_view(request):
+    if request.user.is_authenticated:
+        return redirect("painel")
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password1 = request.POST.get("password1", "")
+        password2 = request.POST.get("password2", "")
+
+        if not username or not password1 or not password2:
+            messages.error(request, "Preencha usuario, senha e confirmacao.")
+        elif User.objects.filter(username=username).exists():
+            messages.error(request, "Este usuario ja existe.")
+        elif password1 != password2:
+            messages.error(request, "As senhas nao conferem.")
+        elif len(password1) < 8:
+            messages.error(request, "A senha precisa ter pelo menos 8 caracteres.")
+        else:
+            usuario = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password1,
+            )
+            login(request, usuario)
+            return redirect("painel")
+
+    return render(request, "login.html", {"active_tab": "cadastro"})
 
 
 @login_required
@@ -398,7 +428,12 @@ def atualizar_status(request, entrega_id, novo_status):
             **entrega_para_json(entrega),
         }
     )
+
+
 def criar_admin(request):
+    if not settings.DEBUG:
+        return HttpResponseForbidden("Criacao de admin desativada em producao.")
+
     if User.objects.filter(username="admin").exists():
         return HttpResponse("Admin já existe.")
 
