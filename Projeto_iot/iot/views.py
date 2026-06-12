@@ -91,6 +91,13 @@ def dispositivo_autenticado(view_func):
     return wrapper
 
 
+def contexto_login(active_tab):
+    return {
+        "active_tab": active_tab,
+        "google_login_enabled": getattr(settings, "GOOGLE_LOGIN_ENABLED", False),
+    }
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("painel")
@@ -107,7 +114,7 @@ def login_view(request):
 
         messages.error(request, "Usuario ou senha invalidos.")
 
-    return render(request, "login.html", {"active_tab": "login"})
+    return render(request, "login.html", contexto_login("login"))
 
 
 def cadastro_view(request):
@@ -134,10 +141,10 @@ def cadastro_view(request):
                 email=email,
                 password=password1,
             )
-            login(request, usuario)
+            login(request, usuario, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("painel")
 
-    return render(request, "login.html", {"active_tab": "cadastro"})
+    return render(request, "login.html", contexto_login("cadastro"))
 
 
 @login_required
