@@ -11,7 +11,8 @@ class Entrega(models.Model):
     ]
 
     ANDARES = [
-        (1, "1º Andar - Recepção"),
+        (0, "Térreo - Recepção"),
+        (1, "1º Andar - Apartamento 101"),
         (2, "2º Andar - Apartamento 201"),
         (3, "3º Andar - Apartamento 301"),
     ]
