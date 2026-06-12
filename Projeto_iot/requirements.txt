@@ -1,5 +1,7 @@
 asgiref==3.11.1
+dj-database-url
 Django==6.0.5
+psycopg2-binary
 sqlparse==0.5.5
 tzdata==2026.2
 gunicorn
