@@ -1,4 +1,4 @@
-{% load static %}
+{% load static socialaccount %}
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -40,6 +40,24 @@
                         {{ message }}
                     </div>
                 {% endfor %}
+            {% endif %}
+
+            {% if google_login_enabled %}
+                <form
+                    class="social-login-form"
+                    method="POST"
+                    action="{% provider_login_url 'google' process='login' %}"
+                >
+                    {% csrf_token %}
+                    <button class="google-button" type="submit">
+                        <span class="google-mark">G</span>
+                        Entrar com Google
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>ou</span>
+                </div>
             {% endif %}
 
             {% if active_tab == 'cadastro' %}
