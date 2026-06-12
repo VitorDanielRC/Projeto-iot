@@ -229,6 +229,55 @@ body {
     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
 }
 
+.social-login-form {
+    margin-bottom: 18px;
+}
+
+.google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #ffffff;
+    color: #1f2937;
+    border: 1px solid #cbd5e1;
+}
+
+.google-button:hover {
+    background: #f8fafc;
+}
+
+.google-mark {
+    display: inline-grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #2563eb;
+    border: 1px solid #e2e8f0;
+    font-weight: 800;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: #e2e8f0;
+}
+
 .input-group {
     text-align: left;
     margin-bottom: 18px;
