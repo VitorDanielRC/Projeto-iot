@@ -397,3 +397,14 @@ def atualizar_status(request, entrega_id, novo_status):
             **entrega_para_json(entrega),
         }
     )
+def criar_admin(request):
+    if User.objects.filter(username="admin").exists():
+        return HttpResponse("Admin já existe.")
+
+    User.objects.create_superuser(
+        username="admin",
+        email="admin@email.com",
+        password="admin123456"
+    )
+
+    return HttpResponse("Admin criado com sucesso.")
