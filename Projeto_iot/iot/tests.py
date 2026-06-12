@@ -53,6 +53,47 @@ class EntregaApiTests(TestCase):
         self.assertContains(response, "Painel FoodLift IoT")
         self.assertContains(response, "Nova entrega")
 
+    def test_tela_de_cadastro_renderiza_formulario(self):
+        self.client.logout()
+
+        response = self.client.get(reverse("cadastro"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Cadastro")
+        self.assertContains(response, "Criar cadastro")
+
+    def test_cadastro_cria_usuario_e_redireciona_para_painel(self):
+        self.client.logout()
+
+        response = self.client.post(
+            reverse("cadastro"),
+            {
+                "username": "novo_usuario",
+                "email": "novo@email.com",
+                "password1": "senha-forte",
+                "password2": "senha-forte",
+            },
+        )
+
+        self.assertRedirects(response, reverse("painel"))
+        self.assertTrue(User.objects.filter(username="novo_usuario").exists())
+
+    def test_cadastro_bloqueia_usuario_repetido(self):
+        self.client.logout()
+
+        response = self.client.post(
+            reverse("cadastro"),
+            {
+                "username": "admin",
+                "email": "admin2@email.com",
+                "password1": "senha-forte",
+                "password2": "senha-forte",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Este usuario ja existe.")
+
     def test_bloqueia_entrega_quando_ja_existe_entrega_em_andamento(self):
         Entrega.objects.create(
             nome_morador="Maria",
