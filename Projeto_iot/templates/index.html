@@ -2,526 +2,919 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>FoodLift IoT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Painel FoodLift IoT</title>
 
     <style>
+      :root {
+        --bg: #f4f7fb;
+        --surface: #ffffff;
+        --surface-soft: #f8fafc;
+        --text: #172033;
+        --muted: #637083;
+        --line: #d9e1ea;
+        --accent: #0f8b6f;
+        --accent-dark: #076653;
+        --warning: #b76e00;
+        --danger: #bd2d2d;
+        --info: #1769aa;
+        --shadow: 0 18px 45px rgba(31, 42, 68, 0.12);
+      }
+
       * {
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
       }
-      
+
       body {
         min-height: 100vh;
-        background: linear-gradient(135deg, #020617, #0f172a, #075985);
-        color: white;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
       }
-      
-      .container {
-        width: 100%;
-        min-height: 100vh;
-        padding: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .painel {
-        width: 100%;
-        max-width: 1250px;
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 30px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 30px;
-        padding: 35px;
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(18px);
-      }
-      
-      .tag {
-        display: inline-block;
-        background: #facc15;
-        color: #422006;
-        padding: 8px 14px;
-        border-radius: 999px;
-        font-weight: bold;
-        margin-bottom: 15px;
-      }
-      
-      h1 {
-        font-size: 44px;
-        margin-bottom: 12px;
-      }
-      
-      .descricao {
-        color: #cbd5e1;
-        font-size: 17px;
-        line-height: 1.6;
-        margin-bottom: 25px;
-      }
-      
-      .card {
-        background: rgba(15, 23, 42, 0.78);
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        border-radius: 22px;
-        padding: 22px;
-        margin-bottom: 18px;
-      }
-      
-      .card h2 {
-        font-size: 22px;
-        margin-bottom: 16px;
-      }
-      
-      label {
-        display: block;
-        margin-bottom: 6px;
-        color: #e2e8f0;
-        font-size: 14px;
-        font-weight: bold;
-      }
-      
+
+      button,
       input,
       select {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 14px;
-        margin-bottom: 14px;
-        background: #f8fafc;
-        color: #0f172a;
-        font-size: 15px;
-        outline: none;
+        font: inherit;
       }
-      
+
       button {
-        border: none;
-        border-radius: 14px;
-        padding: 15px 20px;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s;
+        border: 0;
       }
-      
-      button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+
+      a {
+        color: inherit;
       }
-      
-      .btn-principal {
-        background: linear-gradient(135deg, #facc15, #f97316);
-        color: #422006;
-        width: 100%;
+
+      .app-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 24px 0 32px;
       }
-      
-      .btn-secundario {
-        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-        color: #082f49;
-        width: 100%;
-        margin-top: 10px;
-      }
-      
-      .status-box {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-      }
-      
-      .status-item {
-        background: rgba(2, 6, 23, 0.7);
-        padding: 15px;
-        border-radius: 16px;
-      }
-      
-      .status-item span {
-        display: block;
-        color: #94a3b8;
-        font-size: 13px;
-        margin-bottom: 5px;
-      }
-      
-      .status-item strong {
-        color: white;
-        font-size: 18px;
-      }
-      
-      .historico-item {
-        padding: 12px;
-        border-radius: 14px;
-        background: rgba(2, 6, 23, 0.55);
-        margin-bottom: 10px;
-        border-left: 4px solid #facc15;
-      }
-      
-      .historico-item strong {
-        display: block;
-        margin-bottom: 4px;
-      }
-      
-      .historico-item small {
-        color: #94a3b8;
-      }
-      
-      .predio-area {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-      
-      .predio {
-        position: relative;
-        width: 100%;
-        height: 500px;
-        background: #020617;
-        border: 4px solid #38bdf8;
-        border-radius: 24px;
-        overflow: hidden;
-      }
-      
-      .andar {
-        height: 33.33%;
-        border-bottom: 2px solid #334155;
+
+      .topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 22px;
-        font-size: 22px;
-        font-weight: bold;
-        color: #64748b;
+        gap: 16px;
+        margin-bottom: 18px;
       }
-      
-      .andar-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      
-      .andar-info small {
-        font-size: 13px;
-        color: #94a3b8;
-      }
-      
-      .cabine {
-        position: absolute;
-        left: 35px;
-        width: 120px;
-        height: 110px;
-        background: linear-gradient(135deg, #facc15, #f97316);
-        border-radius: 18px;
+
+      .brand {
         display: flex;
         align-items: center;
-        justify-content: center;
-        color: #1e293b;
-        font-size: 40px;
-        font-weight: bold;
-        transition: bottom 1.2s ease-in-out;
-        box-shadow: 0 15px 40px rgba(250, 204, 21, 0.35);
+        gap: 12px;
       }
-      
-      .andar-1 {
-        bottom: 28px;
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #ffffff;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        letter-spacing: 0.5px;
       }
-      
-      .andar-2 {
-        bottom: 195px;
+
+      .brand h1 {
+        font-size: 24px;
+        line-height: 1.1;
       }
-      
-      .andar-3 {
-        bottom: 360px;
+
+      .brand p {
+        color: var(--muted);
+        margin-top: 3px;
+        font-size: 14px;
       }
-      
-      .mensagem {
-        margin-top: 15px;
-        padding: 15px;
-        border-radius: 14px;
-        background: rgba(34, 197, 94, 0.15);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #bbf7d0;
+
+      .userbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .logout-link {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 12px;
+        background: var(--surface);
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .column {
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        padding: 18px 20px 0;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .panel-header h2 {
+        font-size: 18px;
+      }
+
+      .panel-header p {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      .panel-body {
+        padding: 18px 20px 20px;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      label {
+        display: block;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--text);
+        padding: 12px 13px;
+        outline: 0;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(15, 139, 111, 0.15);
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 2px;
+      }
+
+      .btn {
+        min-height: 46px;
+        border-radius: 8px;
+        padding: 12px 14px;
+        cursor: pointer;
+        font-weight: 800;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(31, 42, 68, 0.16);
+      }
+
+      .btn:disabled {
+        cursor: wait;
+        opacity: 0.65;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn-primary {
+        grid-column: 1 / -1;
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-dark);
+      }
+
+      .btn-secondary {
+        background: #e7f2ef;
+        color: var(--accent-dark);
+      }
+
+      .btn-danger {
+        background: #fff1e6;
+        color: #8a4b00;
+      }
+
+      .message {
         display: none;
+        margin-top: 14px;
+        border-radius: 8px;
+        padding: 12px 13px;
+        border: 1px solid rgba(15, 139, 111, 0.25);
+        background: #edf8f5;
+        color: var(--accent-dark);
+        font-weight: 700;
+        font-size: 14px;
       }
-      
-      .erro {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #fecaca;
+
+      .message.visible {
+        display: block;
       }
-      
-      @media (max-width: 900px) {
-        .painel {
+
+      .message.error {
+        border-color: rgba(189, 45, 45, 0.28);
+        background: #fff0f0;
+        color: var(--danger);
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .status-card {
+        min-height: 82px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--surface-soft);
+        padding: 13px;
+      }
+
+      .status-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .status-card strong {
+        display: block;
+        margin-top: 7px;
+        font-size: 18px;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 13px;
+        color: #ffffff;
+        background: var(--info);
+      }
+
+      .status-aguardando {
+        background: var(--warning);
+      }
+
+      .status-subindo,
+      .status-aguardando-retirada {
+        background: var(--info);
+      }
+
+      .status-retornando {
+        background: #6b5b95;
+      }
+
+      .status-finalizado {
+        background: var(--accent);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .step {
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--muted);
+        padding: 10px 8px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .step.active {
+        border-color: var(--accent);
+        background: #e7f2ef;
+        color: var(--accent-dark);
+      }
+
+      .elevator-wrap {
+        display: grid;
+        gap: 14px;
+      }
+
+      .building {
+        position: relative;
+        min-height: 536px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: linear-gradient(90deg, #eef4f8 0 28%, #ffffff 28% 100%);
+        overflow: hidden;
+      }
+
+      .floor {
+        height: 134px;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        align-items: center;
+      }
+
+      .floor:first-child {
+        border-top: 0;
+      }
+
+      .floor:last-child {
+        border-bottom: 0;
+      }
+
+      .floor-number {
+        color: var(--accent-dark);
+        font-size: 28px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .floor-info {
+        padding: 0 18px;
+      }
+
+      .floor-info strong {
+        display: block;
+        font-size: 17px;
+      }
+
+      .floor-info span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .shaft {
+        position: absolute;
+        left: 118px;
+        top: 18px;
+        bottom: 18px;
+        width: 98px;
+        border: 2px solid #aebdcc;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .cabine {
+        position: absolute;
+        left: 10px;
+        width: 74px;
+        height: 84px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #ffffff;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 900;
+        line-height: 1.15;
+        box-shadow: 0 14px 22px rgba(15, 139, 111, 0.26);
+        transition: bottom 0.8s ease;
+      }
+
+      .andar-0 {
+        bottom: 14px;
+      }
+
+      .andar-1 {
+        bottom: 144px;
+      }
+
+      .andar-2 {
+        bottom: 274px;
+      }
+
+      .andar-3 {
+        bottom: 404px;
+      }
+
+      .history-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .history-item {
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        padding: 12px;
+      }
+
+      .history-item strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .history-item span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .empty-state {
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        color: var(--muted);
+        padding: 14px;
+        background: var(--surface-soft);
+      }
+
+      @media (max-width: 920px) {
+        .workspace {
           grid-template-columns: 1fr;
         }
-      
-        h1 {
-          font-size: 34px;
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
         }
-      
-        .status-box {
+
+        .userbar {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app-shell {
+          width: min(100% - 20px, 1180px);
+          padding-top: 12px;
+        }
+
+        .brand h1 {
+          font-size: 21px;
+        }
+
+        .actions,
+        .status-grid,
+        .flow {
           grid-template-columns: 1fr;
+        }
+
+        .building {
+          min-height: 456px;
+        }
+
+        .floor {
+          height: 114px;
+          grid-template-columns: 86px 1fr;
+        }
+
+        .shaft {
+          left: 90px;
+          width: 86px;
+        }
+
+        .cabine {
+          width: 62px;
+          height: 74px;
+        }
+
+        .andar-0 {
+          bottom: 8px;
+        }
+
+        .andar-1 {
+          bottom: 112px;
+        }
+
+        .andar-2 {
+          bottom: 216px;
+        }
+
+        .andar-3 {
+          bottom: 320px;
         }
       }
     </style>
   </head>
 
   <body>
-    <main class="container">
-      <section class="painel">
-        <div>
-          <span class="tag">FoodLift IoT</span>
-
-          <h1>Elevador de Entrega de Comida</h1>
-
-          <p class="descricao">Entrega inteligente de pedidos entre andares.</p>
-
-          <div class="card">
-            <h2>Nova entrega</h2>
-
-            <form id="formEntrega">
-              <label>Nome do morador</label>
-              <input type="text" id="nome_morador" name="nome_morador" placeholder="Ex: João Silva" />
-
-              <label>Número do pedido</label>
-              <input type="text" id="numero_pedido" name="numero_pedido" placeholder="Ex: PED-1023" />
-
-              <label>Andar de destino</label>
-              <select id="andar_destino" name="andar_destino">
-                <option value="">Selecione o andar</option>
-                <option value="1">1º Andar - Recepção</option>
-                <option value="2">2º Andar - Apartamento 201</option>
-                <option value="3">3º Andar - Apartamento 301</option>
-              </select>
-
-              <button type="submit" class="btn-principal">Enviar lanche pelo elevador</button>
-
-              <button type="button" class="btn-finalizar" onclick="finalizarEntrega()">Comida retirada / liberar elevador</button>
-            </form>
-            <button type="button" class="btn-baixo" onclick="voltarParaBaixo()">⬇ Voltar para baixo</button>
-            <div id="mensagem" class="mensagem"></div>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">FL</div>
+          <div>
+            <h1>Painel FoodLift IoT</h1>
+            <p>Controle de entregas e acompanhamento do elevador</p>
           </div>
+        </div>
 
-          <div class="card">
-            <h2>Status atual</h2>
+        <div class="userbar">
+          <span>Usu&aacute;rio: <strong>{{ request.user.username }}</strong></span>
+          <a class="logout-link" href="{% url 'logout' %}">Sair</a>
+        </div>
+      </header>
 
-            <div class="status-box">
-              <div class="status-item">
-                <span>Morador</span>
-                <strong id="statusMorador">
-                  {% if ultima_entrega %}
-                    {{ ultima_entrega.nome_morador }}
-                  {% else %}
-                    Nenhum
-                  {% endif %}
-                </strong>
-              </div>
-
-              <div class="status-item">
-                <span>Pedido</span>
-                <strong id="statusPedido">
-                  {% if ultima_entrega %}
-                    {{ ultima_entrega.numero_pedido }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </strong>
-              </div>
-
-              <div class="status-item">
-                <span>Andar</span>
-                <strong id="statusAndar">
-                  {% if ultima_entrega %}
-                    {{ ultima_entrega.andar_destino }}º andar
-                  {% else %}
-                    1º andar
-                  {% endif %}
-                </strong>
-              </div>
-
-              <div class="status-item">
-                <span>Status</span>
-                <strong id="statusEntrega">
-                  {% if ultima_entrega %}
-                    {{ ultima_entrega.get_status_display }}
-                  {% else %}
-                    Aguardando entrega
-                  {% endif %}
-                </strong>
+      <section class="workspace">
+        <div class="column">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Nova entrega</h2>
+                <p>Cadastre um pedido e envie para o andar de destino.</p>
               </div>
             </div>
-          </div>
 
-          <div class="card">
-            <h2>Histórico recente</h2>
+            <div class="panel-body">
+              <form id="formEntrega" class="form-grid">
+                {% csrf_token %}
 
-            <div id="historico">
-              {% for entrega in historico %}
-                <div class="historico-item">
-                  <strong>{{ entrega.numero_pedido }} - {{ entrega.nome_morador }}</strong>
-                  <small>
-                    {{ entrega.andar_destino }}º andar |
-                    {{ entrega.get_status_display }}
-                  </small>
+                <div>
+                  <label for="nome_morador">Nome do morador</label>
+                  <input type="text" id="nome_morador" name="nome_morador" placeholder="Ex: Joao Silva" autocomplete="name" required />
                 </div>
-              {% empty %}
-                <p class="descricao">Nenhuma entrega registrada ainda.</p>
-              {% endfor %}
+
+                <div>
+                  <label for="numero_pedido">N&uacute;mero do pedido</label>
+                  <input type="text" id="numero_pedido" name="numero_pedido" placeholder="Ex: PED-1023" autocomplete="off" required />
+                </div>
+
+                <div>
+                  <label for="andar_destino">Andar de destino</label>
+                  <select id="andar_destino" name="andar_destino" required>
+                    <option value="">Selecione o andar</option>
+                    <option value="0">T&eacute;rreo - Recep&ccedil;&atilde;o</option>
+                    <option value="1">1&ordm; Andar - Apartamento 101</option>
+                    <option value="2">2&ordm; Andar - Apartamento 201</option>
+                    <option value="3">3&ordm; Andar - Apartamento 301</option>
+                  </select>
+                </div>
+
+                <div class="actions">
+                  <button id="btnEnviar" type="submit" class="btn btn-primary">Enviar pelo elevador</button>
+                  <button type="button" class="btn btn-secondary" onclick="voltarParaBaixo()">Voltar para o t&eacute;rreo</button>
+                  <button type="button" class="btn btn-danger" onclick="finalizarEntrega()">Finalizar entrega</button>
+                </div>
+              </form>
+
+              <div id="mensagem" class="message" aria-live="polite"></div>
             </div>
-          </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Status atual</h2>
+                <p>Atualiza automaticamente a cada 5 segundos.</p>
+              </div>
+              <strong id="statusEntrega" class="status-pill">
+                {% if ultima_entrega %}
+                  {{ ultima_entrega.get_status_display }}
+                {% else %}
+                  Sem entrega
+                {% endif %}
+              </strong>
+            </div>
+
+            <div class="panel-body">
+              <div class="status-grid">
+                <div class="status-card">
+                  <span>Morador</span>
+                  <strong id="statusMorador">
+                    {% if ultima_entrega %}{{ ultima_entrega.nome_morador }}{% else %}Nenhum{% endif %}
+                  </strong>
+                </div>
+
+                <div class="status-card">
+                  <span>Pedido</span>
+                  <strong id="statusPedido">
+                    {% if ultima_entrega %}{{ ultima_entrega.numero_pedido }}{% else %}-{% endif %}
+                  </strong>
+                </div>
+
+                <div class="status-card">
+                  <span>Destino</span>
+                  <strong id="statusAndar">
+                    {% if ultima_entrega %}{{ ultima_entrega.get_andar_destino_display }}{% else %}T&eacute;rreo{% endif %}
+                  </strong>
+                </div>
+
+                <div class="status-card">
+                  <span>Cabine</span>
+                  <strong id="statusCabine">{{ andar_cabine_label }}</strong>
+                </div>
+              </div>
+
+              <div class="flow" aria-label="Etapas da entrega">
+                <div class="step" data-status="aguardando">Aguardando</div>
+                <div class="step" data-status="subindo">Subindo</div>
+                <div class="step" data-status="aguardando_retirada">Retirada</div>
+                <div class="step" data-status="retornando">Retorno</div>
+                <div class="step" data-status="finalizado">Finalizado</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Hist&oacute;rico recente</h2>
+                <p>&Uacute;ltimas entregas registradas no sistema.</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div id="historico" class="history-list">
+                {% for entrega in historico %}
+                  <article class="history-item">
+                    <strong>{{ entrega.numero_pedido }} - {{ entrega.nome_morador }}</strong>
+                    <span>{{ entrega.get_andar_destino_display }} | {{ entrega.get_status_display }}</span>
+                  </article>
+                {% empty %}
+                  <p class="empty-state">Nenhuma entrega registrada ainda.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div class="predio-area">
-          <div class="card">
-            <h2>Simulação do elevador</h2>
-            <p class="descricao">A cabine se move visualmente até o andar selecionado.</p>
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Elevador</h2>
+              <p>Visualiza&ccedil;&atilde;o da cabine por andar.</p>
+            </div>
           </div>
 
-          <div class="predio">
-            <div class="andar">
-              <div class="andar-info">
-                <span>3º Andar</span>
-                <small>Apartamento 301</small>
+          <div class="panel-body elevator-wrap">
+            <div class="building">
+              <div class="floor">
+                <div class="floor-number">3</div>
+                <div class="floor-info">
+                  <strong>3&ordm; Andar</strong>
+                  <span>Apartamento 301</span>
+                </div>
               </div>
-              <span>🍔</span>
-            </div>
 
-            <div class="andar">
-              <div class="andar-info">
-                <span>2º Andar</span>
-                <small>Apartamento 201</small>
+              <div class="floor">
+                <div class="floor-number">2</div>
+                <div class="floor-info">
+                  <strong>2&ordm; Andar</strong>
+                  <span>Apartamento 201</span>
+                </div>
               </div>
-              <span>🍕</span>
-            </div>
 
-            <div class="andar">
-              <div class="andar-info">
-                <span>1º Andar</span>
-                <small>Recepção / Entregador</small>
+              <div class="floor">
+                <div class="floor-number">1</div>
+                <div class="floor-info">
+                  <strong>1&ordm; Andar</strong>
+                  <span>Apartamento 101</span>
+                </div>
               </div>
-              <span>🛵</span>
-            </div>
 
-            <div id="cabine" class="cabine andar-1">🍱</div>
+              <div class="floor">
+                <div class="floor-number">T</div>
+                <div class="floor-info">
+                  <strong>T&eacute;rreo</strong>
+                  <span>Recep&ccedil;&atilde;o e entregador</span>
+                </div>
+              </div>
+
+              <div class="shaft">
+                <div id="cabine" class="cabine andar-{{ andar_cabine }}">CARGA</div>
+              </div>
+            </div>
           </div>
-        </div>
+        </aside>
       </section>
     </main>
+
     <script>
       const formEntrega = document.getElementById('formEntrega')
       const mensagem = document.getElementById('mensagem')
       const cabine = document.getElementById('cabine')
-      
-      formEntrega.addEventListener('submit', async function (event) {
-        event.preventDefault()
-      
-        const formData = new FormData(formEntrega)
-      
-        mostrarMensagem('Enviando entrega...', false)
-      
-        try {
-          const resposta = await fetch('/entrega/criar/', {
-            method: 'POST',
-            body: formData
-          })
-      
-          const dados = await resposta.json()
-      
-          if (dados.status === 'ok') {
-            cabine.className = `cabine andar-${dados.andar_destino}`
-      
-            document.getElementById('statusMorador').innerText = dados.nome_morador
-            document.getElementById('statusPedido').innerText = dados.numero_pedido
-            document.getElementById('statusAndar').innerText = `${dados.andar_destino}º andar`
-            document.getElementById('statusEntrega').innerText = 'Aguardando envio'
-      
-            mostrarMensagem(`Entrega ${dados.numero_pedido} enviada para o ${dados.andar_destino}º andar.`, false)
-      
-            adicionarHistorico(dados.numero_pedido, dados.nome_morador, dados.andar_destino)
-      
-            formEntrega.reset()
-          } else if (dados.status === 'bloqueado') {
-            mostrarMensagem(`Elevador bloqueado! Já existe uma comida no elevador. Pedido atual: ${dados.pedido_atual}.`, true)
-          } else {
-            mostrarMensagem(dados.mensagem || 'Erro ao criar entrega.', true)
-          }
-        } catch (error) {
-          mostrarMensagem('Erro de conexão com o servidor.', true)
-          console.error(error)
+      const btnEnviar = document.getElementById('btnEnviar')
+      const statusEntrega = document.getElementById('statusEntrega')
+
+      function getCsrfToken() {
+        const input = document.querySelector('input[name="csrfmiddlewaretoken"]')
+        return input ? input.value : ''
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;')
+      }
+
+      function statusClass(status) {
+        return `status-${String(status || 'aguardando').replace(/_/g, '-')}`
+      }
+
+      function formatarAndar(andar) {
+        const numero = Number(andar)
+        return numero === 0 ? 'Térreo' : `${numero}o andar`
+      }
+
+      async function fetchJson(url, options = {}) {
+        const response = await fetch(url, options)
+        const data = await response.json().catch(() => ({
+          status: 'erro',
+          mensagem: 'Resposta invalida do servidor.'
+        }))
+
+        return { response, data }
+      }
+
+      function setCabine(andar) {
+        const numero = Number.isFinite(Number(andar)) ? Number(andar) : 0
+        cabine.className = `cabine andar-${numero}`
+        document.getElementById('statusCabine').innerText = formatarAndar(numero)
+      }
+
+      function atualizarEtapas(status) {
+        document.querySelectorAll('.step').forEach((step) => {
+          step.classList.toggle('active', step.dataset.status === status)
+        })
+      }
+
+      function atualizarEntrega(entrega) {
+        if (!entrega) {
+          document.getElementById('statusMorador').innerText = 'Nenhum'
+          document.getElementById('statusPedido').innerText = '-'
+          document.getElementById('statusAndar').innerText = 'Térreo'
+          statusEntrega.innerText = 'Sem entrega'
+          statusEntrega.className = 'status-pill'
+          setCabine(0)
+          atualizarEtapas('')
+          return
         }
-      })
-      
-      async function voltarParaBaixo() {
-        mostrarMensagem('Enviando comando para o elevador descer...', false)
-      
+
+        document.getElementById('statusMorador').innerText = entrega.nome_morador
+        document.getElementById('statusPedido').innerText = entrega.numero_pedido
+        document.getElementById('statusAndar').innerText = entrega.andar_destino_display || formatarAndar(entrega.andar_destino)
+        statusEntrega.innerText = entrega.status_display
+        statusEntrega.className = `status-pill ${statusClass(entrega.status_entrega)}`
+        setCabine(entrega.andar_cabine)
+        atualizarEtapas(entrega.status_entrega)
+      }
+
+      function renderHistorico(items) {
+        const historico = document.getElementById('historico')
+
+        if (!items.length) {
+          historico.innerHTML = '<p class="empty-state">Nenhuma entrega registrada ainda.</p>'
+          return
+        }
+
+        historico.innerHTML = items.map((entrega) => `
+          <article class="history-item">
+            <strong>${escapeHtml(entrega.numero_pedido)} - ${escapeHtml(entrega.nome_morador)}</strong>
+            <span>${escapeHtml(entrega.andar_destino_display || formatarAndar(entrega.andar_destino))} | ${escapeHtml(entrega.status_display)}</span>
+          </article>
+        `).join('')
+      }
+
+      async function atualizarStatusPainel() {
         try {
-          const resposta = await fetch('/api/elevador/voltar-baixo/', {
-            method: 'POST'
-          })
-      
-          const dados = await resposta.json()
-      
-          if (dados.status === 'ok') {
-            cabine.className = 'cabine andar-1'
-      
-            document.getElementById('statusAndar').innerText = '1º andar'
-            document.getElementById('statusEntrega').innerText = 'Retornando ao térreo'
-      
-            mostrarMensagem(dados.mensagem, false)
-          } else {
-            mostrarMensagem(dados.mensagem || 'Erro ao descer o elevador.', true)
+          const { data } = await fetchJson('/entrega/status-atual/')
+
+          if (data.status === 'ok') {
+            atualizarEntrega(data.entrega)
+            renderHistorico(data.historico || [])
           }
         } catch (error) {
-          mostrarMensagem('Erro de conexão com o servidor.', true)
           console.error(error)
         }
       }
-      
-      async function finalizarEntrega() {
-        mostrarMensagem('Finalizando entrega e liberando o elevador...', false)
-      
+
+      function mostrarMensagem(texto, erro) {
+        mensagem.innerText = texto
+        mensagem.className = erro ? 'message visible error' : 'message visible'
+      }
+
+      formEntrega.addEventListener('submit', async function (event) {
+        event.preventDefault()
+
+        const formData = new FormData(formEntrega)
+        btnEnviar.disabled = true
+        mostrarMensagem('Enviando entrega...', false)
+
         try {
-          const resposta = await fetch('/api/elevador/finalizar/', {
-            method: 'POST'
+          const { data } = await fetchJson('/entrega/criar/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCsrfToken()
+            },
+            body: formData
           })
-      
-          const dados = await resposta.json()
-      
-          if (dados.status === 'ok') {
-            document.getElementById('statusEntrega').innerText = 'Finalizado'
-            mostrarMensagem(dados.mensagem, false)
+
+          if (data.status === 'ok') {
+            atualizarEntrega(data)
+            await atualizarStatusPainel()
+            mostrarMensagem(`Entrega ${data.numero_pedido} cadastrada para ${data.andar_destino_display || formatarAndar(data.andar_destino)}.`, false)
+            formEntrega.reset()
+          } else if (data.status === 'bloqueado') {
+            mostrarMensagem(`Elevador ocupado. Pedido atual: ${data.pedido_atual}.`, true)
           } else {
-            mostrarMensagem(dados.mensagem || 'Erro ao finalizar entrega.', true)
+            mostrarMensagem(data.mensagem || 'Erro ao criar entrega.', true)
+          }
+        } catch (error) {
+          mostrarMensagem('Erro de conexao com o servidor.', true)
+          console.error(error)
+        } finally {
+          btnEnviar.disabled = false
+        }
+      })
+
+      async function voltarParaBaixo() {
+        mostrarMensagem('Solicitando retorno da cabine...', false)
+
+        try {
+          const { data } = await fetchJson('/entrega/voltar-baixo/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCsrfToken()
+            }
+          })
+
+          if (data.status === 'ok') {
+            atualizarEntrega(data)
+            await atualizarStatusPainel()
+            mostrarMensagem(data.mensagem, false)
+          } else {
+            mostrarMensagem(data.mensagem || 'Erro ao retornar o elevador.', true)
+          }
+        } catch (error) {
+          mostrarMensagem('Erro de conexao com o servidor.', true)
+          console.error(error)
+        }
+      }
+
+      async function finalizarEntrega() {
+        mostrarMensagem('Finalizando entrega...', false)
+
+        try {
+          const { data } = await fetchJson('/entrega/finalizar/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCsrfToken()
+            }
+          })
+
+          if (data.status === 'ok') {
+            atualizarEntrega(data)
+            await atualizarStatusPainel()
+            mostrarMensagem(data.mensagem, false)
+          } else {
+            mostrarMensagem(data.mensagem || 'Erro ao finalizar entrega.', true)
           }
         } catch (error) {
           mostrarMensagem('Erro ao finalizar a entrega.', true)
           console.error(error)
         }
       }
-      
-      function mostrarMensagem(texto, erro) {
-        mensagem.innerText = texto
-        mensagem.style.display = 'block'
-      
-        if (erro) {
-          mensagem.classList.add('erro')
-        } else {
-          mensagem.classList.remove('erro')
-        }
-      }
-      
-      function adicionarHistorico(pedido, morador, andar) {
-        const historico = document.getElementById('historico')
-      
-        const item = document.createElement('div')
-        item.className = 'historico-item'
-        item.innerHTML = `
-                  <strong>${pedido} - ${morador}</strong>
-                  <small>${andar}º andar | Aguardando envio</small>
-                `
-      
-        historico.prepend(item)
-      }
+
+      atualizarStatusPainel()
+      window.setInterval(atualizarStatusPainel, 5000)
     </script>
   </body>
 </html>
