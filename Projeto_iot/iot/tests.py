@@ -62,6 +62,39 @@ class EntregaApiTests(TestCase):
         self.assertContains(response, "Cadastro")
         self.assertContains(response, "Criar cadastro")
 
+    def test_login_nao_exibe_google_sem_credenciais(self):
+        self.client.logout()
+
+        response = self.client.get(reverse("login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Entrar com Google")
+
+    @override_settings(
+        GOOGLE_LOGIN_ENABLED=True,
+        SOCIALACCOUNT_PROVIDERS={
+            "google": {
+                "APPS": [
+                    {
+                        "client_id": "client-id",
+                        "secret": "client-secret",
+                        "key": "",
+                    }
+                ],
+                "SCOPE": ["profile", "email"],
+                "AUTH_PARAMS": {"access_type": "online"},
+            }
+        },
+    )
+    def test_login_exibe_google_quando_configurado(self):
+        self.client.logout()
+
+        response = self.client.get(reverse("login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Entrar com Google")
+        self.assertContains(response, "/accounts/google/login/")
+
     def test_cadastro_cria_usuario_e_redireciona_para_painel(self):
         self.client.logout()
 
