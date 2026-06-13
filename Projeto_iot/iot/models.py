@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -26,7 +27,18 @@ class Entrega(models.Model):
         default="aguardando"
     )
     executado = models.BooleanField(default=False)
+    criado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="entregas_criadas",
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def criado_por_nome(self):
+        return self.criado_por.username if self.criado_por else "Sistema"
 
     def __str__(self):
         return f"Pedido {self.numero_pedido} - {self.nome_morador} - Andar {self.andar_destino}"

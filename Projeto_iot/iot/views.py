@@ -64,6 +64,8 @@ def entrega_para_json(entrega):
         "status_entrega": entrega.status,
         "status_display": entrega.get_status_display(),
         "executado": entrega.executado,
+        "criado_por": entrega.criado_por_id,
+        "criado_por_nome": entrega.criado_por_nome,
         "criado_em": criado_em.isoformat(),
         "criado_em_formatado": criado_em.strftime("%d/%m/%Y %H:%M"),
     }
@@ -149,8 +151,9 @@ def cadastro_view(request):
 
 @login_required
 def painel(request):
-    ultima_entrega = Entrega.objects.order_by("-criado_em").first()
-    historico = Entrega.objects.order_by("-criado_em")[:6]
+    entregas = Entrega.objects.select_related("criado_por").order_by("-criado_em")
+    ultima_entrega = entregas.first()
+    historico = entregas[:6]
 
     return render(
         request,
@@ -175,8 +178,9 @@ def status_painel(request):
     if request.method != "GET":
         return resposta_erro("Metodo nao permitido.", status=405)
 
-    ultima_entrega = Entrega.objects.order_by("-criado_em").first()
-    historico = Entrega.objects.order_by("-criado_em")[:6]
+    entregas = Entrega.objects.select_related("criado_por").order_by("-criado_em")
+    ultima_entrega = entregas.first()
+    historico = entregas[:6]
 
     return JsonResponse(
         {
@@ -209,7 +213,7 @@ def criar_entrega(request):
     if andar_destino not in andares_validos:
         return resposta_erro("Andar de destino invalido.", status=400)
 
-    entrega_em_andamento = Entrega.objects.filter(status__in=STATUS_EM_ANDAMENTO).first()
+    entrega_em_andamento = Entrega.objects.select_related("criado_por").filter(status__in=STATUS_EM_ANDAMENTO).first()
 
     if entrega_em_andamento:
         return JsonResponse(
@@ -229,6 +233,7 @@ def criar_entrega(request):
         andar_destino=andar_destino,
         status="aguardando",
         executado=False,
+        criado_por=request.user,
     )
 
     return JsonResponse(
@@ -242,14 +247,20 @@ def criar_entrega(request):
 
 def _buscar_entrega_para_retorno():
     return (
-        Entrega.objects.filter(status__in=["subindo", "aguardando_retirada"])
+        Entrega.objects.select_related("criado_por")
+        .filter(status__in=["subindo", "aguardando_retirada"])
         .order_by("-criado_em")
         .first()
     )
 
 
 def _buscar_entrega_em_andamento():
-    return Entrega.objects.filter(status__in=STATUS_EM_ANDAMENTO).order_by("-criado_em").first()
+    return (
+        Entrega.objects.select_related("criado_por")
+        .filter(status__in=STATUS_EM_ANDAMENTO)
+        .order_by("-criado_em")
+        .first()
+    )
 
 
 def _marcar_retorno():
@@ -353,7 +364,7 @@ def status_elevador(request):
     if request.method != "GET":
         return resposta_erro("Metodo nao permitido.", status=405)
 
-    entrega = Entrega.objects.order_by("-criado_em").first()
+    entrega = Entrega.objects.select_related("criado_por").order_by("-criado_em").first()
 
     if not entrega:
         return JsonResponse(

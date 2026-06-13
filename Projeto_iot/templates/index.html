@@ -628,6 +628,13 @@
                 </div>
 
                 <div class="status-card">
+                  <span>Criado por</span>
+                  <strong id="statusCriadoPor">
+                    {% if ultima_entrega %}{{ ultima_entrega.criado_por_nome }}{% else %}-{% endif %}
+                  </strong>
+                </div>
+
+                <div class="status-card">
                   <span>Destino</span>
                   <strong id="statusAndar">
                     {% if ultima_entrega %}{{ ultima_entrega.get_andar_destino_display }}{% else %}T&eacute;rreo{% endif %}
@@ -663,7 +670,7 @@
                 {% for entrega in historico %}
                   <article class="history-item">
                     <strong>{{ entrega.numero_pedido }} - {{ entrega.nome_morador }}</strong>
-                    <span>{{ entrega.get_andar_destino_display }} | {{ entrega.get_status_display }}</span>
+                    <span>{{ entrega.get_andar_destino_display }} | {{ entrega.get_status_display }} | Criado por {{ entrega.criado_por_nome }}</span>
                   </article>
                 {% empty %}
                   <p class="empty-state">Nenhuma entrega registrada ainda.</p>
@@ -780,6 +787,7 @@
         if (!entrega) {
           document.getElementById('statusMorador').innerText = 'Nenhum'
           document.getElementById('statusPedido').innerText = '-'
+          document.getElementById('statusCriadoPor').innerText = '-'
           document.getElementById('statusAndar').innerText = 'Térreo'
           statusEntrega.innerText = 'Sem entrega'
           statusEntrega.className = 'status-pill'
@@ -790,6 +798,7 @@
 
         document.getElementById('statusMorador').innerText = entrega.nome_morador
         document.getElementById('statusPedido').innerText = entrega.numero_pedido
+        document.getElementById('statusCriadoPor').innerText = entrega.criado_por_nome || 'Sistema'
         document.getElementById('statusAndar').innerText = entrega.andar_destino_display || formatarAndar(entrega.andar_destino)
         statusEntrega.innerText = entrega.status_display
         statusEntrega.className = `status-pill ${statusClass(entrega.status_entrega)}`
@@ -808,7 +817,7 @@
         historico.innerHTML = items.map((entrega) => `
           <article class="history-item">
             <strong>${escapeHtml(entrega.numero_pedido)} - ${escapeHtml(entrega.nome_morador)}</strong>
-            <span>${escapeHtml(entrega.andar_destino_display || formatarAndar(entrega.andar_destino))} | ${escapeHtml(entrega.status_display)}</span>
+            <span>${escapeHtml(entrega.andar_destino_display || formatarAndar(entrega.andar_destino))} | ${escapeHtml(entrega.status_display)} | Criado por ${escapeHtml(entrega.criado_por_nome || 'Sistema')}</span>
           </article>
         `).join('')
       }

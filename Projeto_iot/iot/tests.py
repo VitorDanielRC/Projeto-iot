@@ -32,6 +32,10 @@ class EntregaApiTests(TestCase):
         self.assertEqual(data["andar_destino"], 2)
         self.assertEqual(data["andar_destino_display"], "2º Andar - Apartamento 201")
         self.assertEqual(data["status_entrega"], "aguardando")
+        self.assertEqual(data["criado_por_nome"], "admin")
+
+        entrega = Entrega.objects.get(numero_pedido="PED-1023")
+        self.assertEqual(entrega.criado_por, self.user)
 
     def test_criar_entrega_para_o_terreo(self):
         response = self.client.post(
@@ -49,6 +53,7 @@ class EntregaApiTests(TestCase):
         self.assertEqual(data["andar_destino"], 0)
         self.assertEqual(data["andar_destino_label"], "Térreo")
         self.assertEqual(data["andar_cabine"], 0)
+        self.assertEqual(data["criado_por_nome"], "admin")
 
     def test_painel_renderiza_interface_principal(self):
         response = self.client.get(reverse("painel"))
@@ -204,6 +209,7 @@ class EntregaApiTests(TestCase):
             andar_destino=3,
             status="aguardando_retirada",
             executado=True,
+            criado_por=self.user,
         )
 
         response = self.client.get(reverse("status_painel"))
@@ -215,16 +221,19 @@ class EntregaApiTests(TestCase):
         self.assertEqual(data["entrega"]["numero_pedido"], "PED-99")
         self.assertEqual(data["entrega"]["andar_destino_display"], "3º Andar - Apartamento 301")
         self.assertEqual(data["entrega"]["andar_cabine"], 3)
+        self.assertEqual(data["entrega"]["criado_por_nome"], "admin")
         self.assertEqual(len(data["historico"]), 1)
 
     def test_entrega_criada_por_um_usuario_aparece_para_outro_no_painel(self):
         outro_usuario = User.objects.create_user(username="morador", password="senha-forte")
 
-        Entrega.objects.create(
-            nome_morador="Maria",
-            numero_pedido="PED-COMPARTILHADO",
-            andar_destino=2,
-            status="aguardando",
+        self.client.post(
+            reverse("criar_entrega"),
+            {
+                "nome_morador": "Maria",
+                "numero_pedido": "PED-COMPARTILHADO",
+                "andar_destino": "2",
+            },
         )
 
         self.client.logout()
@@ -235,16 +244,18 @@ class EntregaApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "PED-COMPARTILHADO")
         self.assertContains(response, "Maria")
+        self.assertContains(response, "Criado por admin")
 
     def test_status_painel_retorna_entregas_globais_para_qualquer_usuario(self):
         outro_usuario = User.objects.create_user(username="porteiro", password="senha-forte")
 
-        Entrega.objects.create(
-            nome_morador="Joao",
-            numero_pedido="PED-GLOBAL",
-            andar_destino=1,
-            status="subindo",
-            executado=True,
+        self.client.post(
+            reverse("criar_entrega"),
+            {
+                "nome_morador": "Joao",
+                "numero_pedido": "PED-GLOBAL",
+                "andar_destino": "1",
+            },
         )
 
         self.client.logout()
@@ -255,7 +266,9 @@ class EntregaApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["entrega"]["numero_pedido"], "PED-GLOBAL")
+        self.assertEqual(data["entrega"]["criado_por_nome"], "admin")
         self.assertEqual(data["historico"][0]["numero_pedido"], "PED-GLOBAL")
+        self.assertEqual(data["historico"][0]["criado_por_nome"], "admin")
 
     def test_dispositivo_pode_atualizar_status_com_post_e_token(self):
         entrega = Entrega.objects.create(
