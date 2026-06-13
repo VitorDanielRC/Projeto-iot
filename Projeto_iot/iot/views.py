@@ -149,16 +149,18 @@ def cadastro_view(request):
     return render(request, "login.html", contexto_login("cadastro"))
 
 
-@login_required
-def painel(request):
+def _render_painel(request, visao_inicial="entregador"):
     entregas = Entrega.objects.select_related("criado_por").order_by("-criado_em")
     ultima_entrega = entregas.first()
     historico = entregas[:6]
+    if visao_inicial not in {"entregador", "cliente"}:
+        visao_inicial = "entregador"
 
     return render(
         request,
         "index.html",
         {
+            "visao_inicial": visao_inicial,
             "ultima_entrega": ultima_entrega,
             "entrega_atual": ultima_entrega,
             "historico": historico,
@@ -166,6 +168,21 @@ def painel(request):
             "andar_cabine_label": formatar_andar(andar_cabine(ultima_entrega)),
         },
     )
+
+
+@login_required
+def painel(request):
+    return _render_painel(request, "entregador")
+
+
+@login_required
+def visao_entregador(request):
+    return _render_painel(request, "entregador")
+
+
+@login_required
+def visao_cliente(request):
+    return _render_painel(request, "cliente")
 
 
 def logout_view(request):

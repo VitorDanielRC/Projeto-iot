@@ -162,12 +162,15 @@
       }
 
       .role-tab {
+        display: grid;
+        place-items: center;
         min-height: 44px;
         border-radius: 8px;
         background: transparent;
         color: var(--muted);
         cursor: pointer;
         font-weight: 800;
+        text-decoration: none;
       }
 
       .role-tab.active {
@@ -597,29 +600,29 @@
       <section class="workspace">
         <div class="column">
           <div class="role-tabs" role="tablist" aria-label="Areas do painel">
-            <button
-              type="button"
-              class="role-tab active"
+            <a
+              href="{% url 'visao_entregador' %}"
+              class="role-tab {% if visao_inicial == 'entregador' %}active{% endif %}"
               data-role-target="abaEntregador"
               role="tab"
               aria-controls="abaEntregador"
-              aria-selected="true"
+              aria-selected="{% if visao_inicial == 'entregador' %}true{% else %}false{% endif %}"
             >
-              Entregador
-            </button>
-            <button
-              type="button"
-              class="role-tab"
+              Vis&atilde;o do entregador
+            </a>
+            <a
+              href="{% url 'visao_cliente' %}"
+              class="role-tab {% if visao_inicial == 'cliente' %}active{% endif %}"
               data-role-target="abaCliente"
               role="tab"
               aria-controls="abaCliente"
-              aria-selected="false"
+              aria-selected="{% if visao_inicial == 'cliente' %}true{% else %}false{% endif %}"
             >
-              Cliente
-            </button>
+              Vis&atilde;o do cliente
+            </a>
           </div>
 
-          <section id="abaEntregador" class="role-panel active" role="tabpanel">
+          <section id="abaEntregador" class="role-panel {% if visao_inicial == 'entregador' %}active{% endif %}" role="tabpanel">
             <section class="panel">
               <div class="panel-header">
                 <div>
@@ -662,7 +665,7 @@
             </section>
           </section>
 
-          <section id="abaCliente" class="role-panel" role="tabpanel">
+          <section id="abaCliente" class="role-panel {% if visao_inicial == 'cliente' %}active{% endif %}" role="tabpanel">
             <section class="panel">
               <div class="panel-header">
                 <div>
@@ -906,7 +909,11 @@
       }
 
       roleTabs.forEach((tab) => {
-        tab.addEventListener('click', () => ativarAba(tab.dataset.roleTarget))
+        tab.addEventListener('click', (event) => {
+          event.preventDefault()
+          ativarAba(tab.dataset.roleTarget)
+          window.history.pushState({}, '', tab.getAttribute('href'))
+        })
       })
 
       function escapeHtml(value) {

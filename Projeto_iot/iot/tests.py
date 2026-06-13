@@ -60,9 +60,23 @@ class EntregaApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Painel FoodLift IoT")
-        self.assertContains(response, "Entregador")
-        self.assertContains(response, "Cliente")
+        self.assertContains(response, "Vis&atilde;o do entregador")
+        self.assertContains(response, "Vis&atilde;o do cliente")
         self.assertContains(response, "Aguardando chegada")
+
+    def test_visao_entregador_abre_com_aba_entregador_ativa(self):
+        response = self.client.get(reverse("visao_entregador"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="abaEntregador" class="role-panel active"')
+        self.assertContains(response, 'href="/entregador/"')
+
+    def test_visao_cliente_abre_com_aba_cliente_ativa(self):
+        response = self.client.get(reverse("visao_cliente"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="abaCliente" class="role-panel active"')
+        self.assertContains(response, 'href="/cliente/"')
 
     def test_tela_de_cadastro_renderiza_formulario(self):
         self.client.logout()
