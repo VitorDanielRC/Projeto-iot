@@ -60,7 +60,9 @@ class EntregaApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Painel FoodLift IoT")
-        self.assertContains(response, "Nova entrega")
+        self.assertContains(response, "Entregador")
+        self.assertContains(response, "Cliente")
+        self.assertContains(response, "Aguardando chegada")
 
     def test_tela_de_cadastro_renderiza_formulario(self):
         self.client.logout()
@@ -201,6 +203,43 @@ class EntregaApiTests(TestCase):
 
         entrega.refresh_from_db()
         self.assertEqual(entrega.status, "finalizado")
+
+    def test_cliente_confirma_recebimento_quando_entrega_aguardando_retirada(self):
+        entrega = Entrega.objects.create(
+            nome_morador="Maria",
+            numero_pedido="PED-CLIENTE",
+            andar_destino=2,
+            status="aguardando_retirada",
+            executado=True,
+        )
+
+        response = self.client.post(reverse("confirmar_recebimento_site"))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertEqual(data["status_entrega"], "finalizado")
+        self.assertEqual(data["numero_pedido"], "PED-CLIENTE")
+
+        entrega.refresh_from_db()
+        self.assertEqual(entrega.status, "finalizado")
+
+    def test_cliente_nao_confirma_antes_do_elevador_chegar(self):
+        entrega = Entrega.objects.create(
+            nome_morador="Maria",
+            numero_pedido="PED-SUBINDO",
+            andar_destino=2,
+            status="subindo",
+            executado=True,
+        )
+
+        response = self.client.post(reverse("confirmar_recebimento_site"))
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["status"], "erro")
+
+        entrega.refresh_from_db()
+        self.assertEqual(entrega.status, "subindo")
 
     def test_status_painel_retorna_entrega_e_historico_para_interface(self):
         Entrega.objects.create(

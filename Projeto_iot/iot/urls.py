@@ -11,6 +11,7 @@ urlpatterns = [
     path("entrega/status-atual/", views.status_painel, name="status_painel"),
     path("entrega/criar/", views.criar_entrega, name="criar_entrega"),
     path("entrega/voltar-baixo/", views.voltar_para_baixo_site, name="voltar_para_baixo_site"),
+    path("entrega/confirmar-recebimento/", views.confirmar_recebimento_site, name="confirmar_recebimento_site"),
     path("entrega/finalizar/", views.finalizar_entrega_site, name="finalizar_entrega_site"),
 
     path("api/elevador/comando/", views.comando_elevador, name="comando_elevador"),

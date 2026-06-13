@@ -263,6 +263,15 @@ def _buscar_entrega_em_andamento():
     )
 
 
+def _buscar_entrega_aguardando_retirada():
+    return (
+        Entrega.objects.select_related("criado_por")
+        .filter(status="aguardando_retirada")
+        .order_by("-criado_em")
+        .first()
+    )
+
+
 def _marcar_retorno():
     entrega = _buscar_entrega_para_retorno()
 
@@ -285,6 +294,17 @@ def _finalizar_entrega():
     return entrega
 
 
+def _confirmar_recebimento():
+    entrega = _buscar_entrega_aguardando_retirada()
+
+    if not entrega:
+        return None
+
+    entrega.status = "finalizado"
+    entrega.save(update_fields=["status"])
+    return entrega
+
+
 @login_required
 def voltar_para_baixo_site(request):
     if request.method != "POST":
@@ -298,6 +318,24 @@ def voltar_para_baixo_site(request):
         {
             "status": "ok",
             "mensagem": "Elevador retornando para o terreo.",
+            **entrega_para_json(entrega),
+        }
+    )
+
+
+@login_required
+def confirmar_recebimento_site(request):
+    if request.method != "POST":
+        return resposta_erro("Metodo nao permitido.", status=405)
+
+    entrega = _confirmar_recebimento()
+    if not entrega:
+        return resposta_erro("Nenhuma entrega aguardando retirada para confirmar.", status=409)
+
+    return JsonResponse(
+        {
+            "status": "ok",
+            "mensagem": "Recebimento confirmado com sucesso.",
             **entrega_para_json(entrega),
         }
     )

@@ -150,6 +150,39 @@
         padding: 18px 20px 20px;
       }
 
+      .role-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .role-tab {
+        min-height: 44px;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      .role-tab.active {
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .role-panel {
+        display: none;
+      }
+
+      .role-panel.active {
+        display: block;
+      }
+
       .form-grid {
         display: grid;
         gap: 14px;
@@ -202,7 +235,7 @@
       }
 
       .btn:disabled {
-        cursor: wait;
+        cursor: not-allowed;
         opacity: 0.65;
         transform: none;
         box-shadow: none;
@@ -226,6 +259,17 @@
       .btn-danger {
         background: #fff1e6;
         color: #8a4b00;
+      }
+
+      .actions-single {
+        grid-template-columns: 1fr;
+      }
+
+      .client-help {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
       }
 
       .message {
@@ -552,49 +596,151 @@
 
       <section class="workspace">
         <div class="column">
-          <section class="panel">
-            <div class="panel-header">
-              <div>
-                <h2>Nova entrega</h2>
-                <p>Cadastre um pedido e envie para o andar de destino.</p>
+          <div class="role-tabs" role="tablist" aria-label="Areas do painel">
+            <button
+              type="button"
+              class="role-tab active"
+              data-role-target="abaEntregador"
+              role="tab"
+              aria-controls="abaEntregador"
+              aria-selected="true"
+            >
+              Entregador
+            </button>
+            <button
+              type="button"
+              class="role-tab"
+              data-role-target="abaCliente"
+              role="tab"
+              aria-controls="abaCliente"
+              aria-selected="false"
+            >
+              Cliente
+            </button>
+          </div>
+
+          <section id="abaEntregador" class="role-panel active" role="tabpanel">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>&Aacute;rea do entregador</h2>
+                  <p>Preencha a ficha para o elevador subir at&eacute; o cliente.</p>
+                </div>
               </div>
-            </div>
 
-            <div class="panel-body">
-              <form id="formEntrega" class="form-grid">
-                {% csrf_token %}
+              <div class="panel-body">
+                <form id="formEntrega" class="form-grid">
+                  {% csrf_token %}
 
-                <div>
-                  <label for="nome_morador">Nome do morador</label>
-                  <input type="text" id="nome_morador" name="nome_morador" placeholder="Ex: Joao Silva" autocomplete="name" required />
-                </div>
+                  <div>
+                    <label for="nome_morador">Nome do morador</label>
+                    <input type="text" id="nome_morador" name="nome_morador" placeholder="Ex: Joao Silva" autocomplete="name" required />
+                  </div>
 
-                <div>
-                  <label for="numero_pedido">N&uacute;mero do pedido</label>
-                  <input type="text" id="numero_pedido" name="numero_pedido" placeholder="Ex: PED-1023" autocomplete="off" required />
-                </div>
+                  <div>
+                    <label for="numero_pedido">N&uacute;mero do pedido</label>
+                    <input type="text" id="numero_pedido" name="numero_pedido" placeholder="Ex: PED-1023" autocomplete="off" required />
+                  </div>
 
-                <div>
-                  <label for="andar_destino">Andar de destino</label>
-                  <select id="andar_destino" name="andar_destino" required>
-                    <option value="">Selecione o andar</option>
-                    <option value="0">T&eacute;rreo - Recep&ccedil;&atilde;o</option>
-                    <option value="1">1&ordm; Andar - Apartamento 101</option>
-                    <option value="2">2&ordm; Andar - Apartamento 201</option>
-                    <option value="3">3&ordm; Andar - Apartamento 301</option>
-                  </select>
-                </div>
+                  <div>
+                    <label for="andar_destino">Andar de destino</label>
+                    <select id="andar_destino" name="andar_destino" required>
+                      <option value="">Selecione o andar</option>
+                      <option value="0">T&eacute;rreo - Recep&ccedil;&atilde;o</option>
+                      <option value="1">1&ordm; Andar - Apartamento 101</option>
+                      <option value="2">2&ordm; Andar - Apartamento 201</option>
+                      <option value="3">3&ordm; Andar - Apartamento 301</option>
+                    </select>
+                  </div>
 
-                <div class="actions">
-                  <button id="btnEnviar" type="submit" class="btn btn-primary">Enviar pelo elevador</button>
-                  <button type="button" class="btn btn-secondary" onclick="voltarParaBaixo()">Voltar para o t&eacute;rreo</button>
-                  <button type="button" class="btn btn-danger" onclick="finalizarEntrega()">Finalizar entrega</button>
-                </div>
-              </form>
+                  <div class="actions actions-single">
+                    <button id="btnEnviar" type="submit" class="btn btn-primary">Enviar pelo elevador</button>
+                  </div>
+                </form>
 
-              <div id="mensagem" class="message" aria-live="polite"></div>
-            </div>
+              </div>
+            </section>
           </section>
+
+          <section id="abaCliente" class="role-panel" role="tabpanel">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>&Aacute;rea do cliente</h2>
+                  <p>Acompanhe a encomenda e confirme quando receber.</p>
+                </div>
+              </div>
+
+              <div class="panel-body">
+                <div class="status-grid">
+                  <div class="status-card">
+                    <span>Morador</span>
+                    <strong id="clienteMorador">
+                      {% if ultima_entrega %}{{ ultima_entrega.nome_morador }}{% else %}Nenhum{% endif %}
+                    </strong>
+                  </div>
+
+                  <div class="status-card">
+                    <span>Pedido</span>
+                    <strong id="clientePedido">
+                      {% if ultima_entrega %}{{ ultima_entrega.numero_pedido }}{% else %}-{% endif %}
+                    </strong>
+                  </div>
+
+                  <div class="status-card">
+                    <span>Criado por</span>
+                    <strong id="clienteCriadoPor">
+                      {% if ultima_entrega %}{{ ultima_entrega.criado_por_nome }}{% else %}-{% endif %}
+                    </strong>
+                  </div>
+
+                  <div class="status-card">
+                    <span>Status</span>
+                    <strong id="clienteStatus">
+                      {% if ultima_entrega %}{{ ultima_entrega.get_status_display }}{% else %}Sem entrega{% endif %}
+                    </strong>
+                  </div>
+
+                  <div class="status-card">
+                    <span>Destino</span>
+                    <strong id="clienteDestino">
+                      {% if ultima_entrega %}{{ ultima_entrega.get_andar_destino_display }}{% else %}T&eacute;rreo{% endif %}
+                    </strong>
+                  </div>
+                </div>
+
+                <div class="actions actions-single">
+                  <button
+                    id="btnConfirmarRecebimento"
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="confirmarRecebimento()"
+                    {% if not ultima_entrega or ultima_entrega.status != "aguardando_retirada" %}disabled{% endif %}
+                  >
+                    {% if ultima_entrega and ultima_entrega.status == "aguardando_retirada" %}
+                      Confirmar recebimento
+                    {% elif ultima_entrega and ultima_entrega.status == "finalizado" %}
+                      Recebimento confirmado
+                    {% else %}
+                      Aguardando chegada
+                    {% endif %}
+                  </button>
+                </div>
+
+                <p id="clienteAjuda" class="client-help">
+                  {% if ultima_entrega and ultima_entrega.status == "aguardando_retirada" %}
+                    O pedido chegou. Confira a encomenda e confirme o recebimento.
+                  {% elif ultima_entrega %}
+                    O pedido ainda n&atilde;o est&aacute; pronto para confirma&ccedil;&atilde;o.
+                  {% else %}
+                    Nenhuma entrega em andamento no momento.
+                  {% endif %}
+                </p>
+              </div>
+            </section>
+          </section>
+
+          <div id="mensagem" class="message" aria-live="polite"></div>
 
           <section class="panel">
             <div class="panel-header">
@@ -737,11 +883,31 @@
       const cabine = document.getElementById('cabine')
       const btnEnviar = document.getElementById('btnEnviar')
       const statusEntrega = document.getElementById('statusEntrega')
+      const roleTabs = document.querySelectorAll('.role-tab')
+      const rolePanels = document.querySelectorAll('.role-panel')
+      const btnConfirmarRecebimento = document.getElementById('btnConfirmarRecebimento')
+      const clienteAjuda = document.getElementById('clienteAjuda')
 
       function getCsrfToken() {
         const input = document.querySelector('input[name="csrfmiddlewaretoken"]')
         return input ? input.value : ''
       }
+
+      function ativarAba(targetId) {
+        roleTabs.forEach((tab) => {
+          const active = tab.dataset.roleTarget === targetId
+          tab.classList.toggle('active', active)
+          tab.setAttribute('aria-selected', active ? 'true' : 'false')
+        })
+
+        rolePanels.forEach((panel) => {
+          panel.classList.toggle('active', panel.id === targetId)
+        })
+      }
+
+      roleTabs.forEach((tab) => {
+        tab.addEventListener('click', () => ativarAba(tab.dataset.roleTarget))
+      })
 
       function escapeHtml(value) {
         return String(value)
@@ -783,6 +949,47 @@
         })
       }
 
+      function atualizarCliente(entrega) {
+        if (!btnConfirmarRecebimento || !clienteAjuda) {
+          return
+        }
+
+        if (!entrega) {
+          document.getElementById('clienteMorador').innerText = 'Nenhum'
+          document.getElementById('clientePedido').innerText = '-'
+          document.getElementById('clienteCriadoPor').innerText = '-'
+          document.getElementById('clienteStatus').innerText = 'Sem entrega'
+          document.getElementById('clienteDestino').innerText = 'Terreo'
+          btnConfirmarRecebimento.disabled = true
+          btnConfirmarRecebimento.innerText = 'Aguardando chegada'
+          clienteAjuda.innerText = 'Nenhuma entrega em andamento no momento.'
+          return
+        }
+
+        const podeConfirmar = entrega.status_entrega === 'aguardando_retirada'
+
+        document.getElementById('clienteMorador').innerText = entrega.nome_morador
+        document.getElementById('clientePedido').innerText = entrega.numero_pedido
+        document.getElementById('clienteCriadoPor').innerText = entrega.criado_por_nome || 'Sistema'
+        document.getElementById('clienteStatus').innerText = entrega.status_display
+        document.getElementById('clienteDestino').innerText = entrega.andar_destino_display || formatarAndar(entrega.andar_destino)
+        btnConfirmarRecebimento.disabled = !podeConfirmar
+
+        if (podeConfirmar) {
+          btnConfirmarRecebimento.innerText = 'Confirmar recebimento'
+          clienteAjuda.innerText = 'O pedido chegou. Confira a encomenda e confirme o recebimento.'
+        } else if (entrega.status_entrega === 'finalizado') {
+          btnConfirmarRecebimento.innerText = 'Recebimento confirmado'
+          clienteAjuda.innerText = 'Entrega confirmada pelo cliente.'
+        } else if (entrega.status_entrega === 'retornando') {
+          btnConfirmarRecebimento.innerText = 'Recebimento confirmado'
+          clienteAjuda.innerText = 'Entrega confirmada. Elevador em retorno ao terreo.'
+        } else {
+          btnConfirmarRecebimento.innerText = 'Aguardando chegada'
+          clienteAjuda.innerText = 'Aguarde o elevador chegar ao andar para confirmar o recebimento.'
+        }
+      }
+
       function atualizarEntrega(entrega) {
         if (!entrega) {
           document.getElementById('statusMorador').innerText = 'Nenhum'
@@ -793,6 +1000,7 @@
           statusEntrega.className = 'status-pill'
           setCabine(0)
           atualizarEtapas('')
+          atualizarCliente(null)
           return
         }
 
@@ -804,6 +1012,7 @@
         statusEntrega.className = `status-pill ${statusClass(entrega.status_entrega)}`
         setCabine(entrega.andar_cabine)
         atualizarEtapas(entrega.status_entrega)
+        atualizarCliente(entrega)
       }
 
       function renderHistorico(items) {
@@ -895,6 +1104,33 @@
         } catch (error) {
           mostrarMensagem('Erro de conexao com o servidor.', true)
           console.error(error)
+        }
+      }
+
+      async function confirmarRecebimento() {
+        btnConfirmarRecebimento.disabled = true
+        mostrarMensagem('Confirmando recebimento...', false)
+
+        try {
+          const { data } = await fetchJson('/entrega/confirmar-recebimento/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCsrfToken()
+            }
+          })
+
+          if (data.status === 'ok') {
+            atualizarEntrega(data)
+            await atualizarStatusPainel()
+            mostrarMensagem(data.mensagem, false)
+          } else {
+            mostrarMensagem(data.mensagem || 'Erro ao confirmar recebimento.', true)
+            await atualizarStatusPainel()
+          }
+        } catch (error) {
+          mostrarMensagem('Erro ao confirmar o recebimento.', true)
+          console.error(error)
+          await atualizarStatusPainel()
         }
       }
 
