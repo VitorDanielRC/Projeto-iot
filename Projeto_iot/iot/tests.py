@@ -1,4 +1,8 @@
+from io import StringIO
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -232,3 +236,40 @@ class EntregaApiTests(TestCase):
 
         entrega.refresh_from_db()
         self.assertEqual(entrega.status, "aguardando_retirada")
+
+    def test_create_admin_from_env_cria_superusuario(self):
+        env = {
+            "DJANGO_SUPERUSER_USERNAME": "admin_render",
+            "DJANGO_SUPERUSER_EMAIL": "admin@render.com",
+            "DJANGO_SUPERUSER_PASSWORD": "senha-super-forte",
+        }
+        output = StringIO()
+
+        with patch.dict("os.environ", env, clear=False):
+            call_command("create_admin_from_env", stdout=output)
+
+        user = User.objects.get(username="admin_render")
+        self.assertEqual(user.email, "admin@render.com")
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.check_password("senha-super-forte"))
+        self.assertIn("created", output.getvalue())
+
+    def test_create_admin_from_env_atualiza_superusuario_existente(self):
+        User.objects.create_user(username="admin_render", password="senha-antiga")
+        env = {
+            "DJANGO_SUPERUSER_USERNAME": "admin_render",
+            "DJANGO_SUPERUSER_EMAIL": "novo@render.com",
+            "DJANGO_SUPERUSER_PASSWORD": "senha-nova-forte",
+        }
+        output = StringIO()
+
+        with patch.dict("os.environ", env, clear=False):
+            call_command("create_admin_from_env", stdout=output)
+
+        user = User.objects.get(username="admin_render")
+        self.assertEqual(user.email, "novo@render.com")
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.check_password("senha-nova-forte"))
+        self.assertIn("updated", output.getvalue())
